@@ -10,7 +10,7 @@ import streamlit.components.v1 as components
 st.set_page_config(page_title="Salar.AI Master Panel", layout="wide", initial_sidebar_state="expanded")
 st.markdown('<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">', unsafe_allow_html=True)
 
-# ---------- 2. Premium CSS Injection (Upgraded for "Hooking" UI) ----------
+# ---------- 2. Premium CSS Injection ----------
 st.markdown("""
 <style>
     .stApp { background-color: #0f172a; }
@@ -31,24 +31,14 @@ st.markdown("""
     .top-header .welcome { color: #64748b; font-size: 15px; font-weight: 500; }
     .user-pill { display: flex; align-items: center; background-color: #f1f5f9; padding: 8px 20px; border-radius: 50px; border: 1px solid #e2e8f0; color: #1e293b; box-shadow: 0 0 10px rgba(0,0,0,0.02); font-weight: bold; }
 
-    /* 🌟 UPGRADED KPI CARDS (Neon Glow & Glassmorphism) 🌟 */
     .kpi-row { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap;}
     .kpi-card { 
-        flex: 1; min-width: 250px; 
-        background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
-        padding: 25px; border-radius: 16px; 
-        border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155;
-        border-left: 4px solid #3b82f6; /* Accent Border */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        flex: 1; min-width: 250px; background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
+        padding: 25px; border-radius: 16px; border-top: 1px solid #334155; border-right: 1px solid #334155; border-bottom: 1px solid #334155;
+        border-left: 4px solid #3b82f6; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         position: relative; overflow: hidden; 
     }
-    .kpi-card:hover { 
-        transform: translateY(-8px) scale(1.02); 
-        border-left: 4px solid #8b5cf6; 
-        box-shadow: 0 15px 25px rgba(59, 130, 246, 0.2);
-    }
-    
+    .kpi-card:hover { transform: translateY(-8px) scale(1.02); border-left: 4px solid #8b5cf6; box-shadow: 0 15px 25px rgba(59, 130, 246, 0.2); }
     .card-icon { font-size: 24px; color: #3b82f6; position: absolute; right: 20px; top: 20px; background-color: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 10px; border: 1px solid #334155; backdrop-filter: blur(5px); }
     .card-title { color: #94a3b8; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
     .card-value { color: white; font-size: 34px; font-weight: 900; margin: 10px 0; font-family: 'Inter', sans-serif;}
@@ -56,12 +46,10 @@ st.markdown("""
     .trend-percent { font-weight: bold; margin-right: 10px;}
     .trend-up { color: #10b981; } .trend-down { color: #ef4444; } .trend-label { color: #94a3b8; }
 
-    /* Custom Streamlit Tabs Styling */
     .stTabs [data-baseweb="tab-list"] { background-color: #0f172a; border-radius: 10px; padding: 5px; gap: 10px; }
     .stTabs [data-baseweb="tab"] { background-color: #1e293b; border-radius: 8px; color: white; padding: 10px 20px; border: 1px solid #334155; transition: 0.3s; }
     .stTabs [aria-selected="true"] { background-color: #3b82f6 !important; border-color: #3b82f6 !important; box-shadow: 0 0 15px rgba(59,130,246,0.4); }
 
-    /* Health Bar */
     .health-container { background-color: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; text-align: center;}
     .health-bar-bg { width: 100%; background-color: #0f172a; border-radius: 20px; height: 12px; margin-top: 10px; overflow: hidden; border: 1px solid #334155;}
     .health-bar-fill { height: 100%; border-radius: 20px; transition: 1s ease-in-out; }
@@ -78,6 +66,17 @@ st.markdown("""
     #MainMenu {visibility: hidden;} footer {visibility: hidden;} .stFileUploader label {color: white !important;}
 </style>
 """, unsafe_allow_html=True)
+
+# Helper function to inject attractive chart layouts
+def apply_chart_styling(fig):
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)", 
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#cbd5e1"), # Light silver text for axis
+        title_font=dict(size=20, color="#ffffff", family="Arial, sans-serif"), # Bright white title
+        legend_title_font_color="#ffffff"
+    )
+    return fig
 
 # ---------- 3. Sidebar Setup ----------
 with st.sidebar:
@@ -103,14 +102,12 @@ if uploaded_file is not None:
     elif file_ext == 'xlsx': df = pd.read_excel(uploaded_file)
     elif file_ext == 'json': df = pd.read_json(uploaded_file)
     
-    # === 🌟 PAGE 1: UPGRADED HOOKING DASHBOARD 🌟 ===
     if menu == "📊 Analytics Dashboard":
         total_rows = df.shape[0]
         total_cols = df.shape[1]
         empty_cells = df.isnull().sum().sum()
         total_data_points = total_rows * total_cols
         
-        # Calculate Data Health Score (Gamification)
         health_score = int(100 - ((empty_cells / total_data_points) * 100)) if total_data_points > 0 else 0
         health_color = "#10b981" if health_score > 85 else ("#f59e0b" if health_score > 60 else "#ef4444")
 
@@ -125,7 +122,6 @@ if uploaded_file is not None:
         </div>
         """, unsafe_allow_html=True)
 
-        # 🌟 INTERACTIVE TABS (Hooking Element) 🌟
         st.markdown("<br>", unsafe_allow_html=True)
         tab1, tab2, tab3 = st.tabs(["🗄️ Raw Data View", "📈 Quick Trends", "📊 Column Stats"])
         
@@ -138,8 +134,8 @@ if uploaded_file is not None:
             st.markdown('<div class="content-box"><h3>📈 Automatic Numeric Trend</h3>', unsafe_allow_html=True)
             num_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
             if len(num_cols) > 0:
-                trend_fig = px.area(df.head(200), y=num_cols[0], template="plotly_dark", color_discrete_sequence=['#3b82f6'])
-                trend_fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                trend_fig = px.area(df.head(200), y=num_cols[0], title=f"Trend of {num_cols[0]}", template="plotly_dark", color_discrete_sequence=['#3b82f6'])
+                trend_fig = apply_chart_styling(trend_fig)
                 st.plotly_chart(trend_fig, use_container_width=True)
             else: st.info("No numerical columns found to draw trend.")
             st.markdown('</div>', unsafe_allow_html=True)
@@ -149,7 +145,6 @@ if uploaded_file is not None:
             st.dataframe(df.describe(), use_container_width=True)
             st.markdown('</div>', unsafe_allow_html=True)
 
-    # === PAGE 2: AI CHAT ===
     elif menu == "💬 Data Agent Chat":
         st.markdown('<div class="content-box"><h3>🤖 Data Intelligence AI Chat</h3>', unsafe_allow_html=True)
         if not api_key: st.warning("⚠️ Enter Groq API Key in sidebar.")
@@ -171,7 +166,6 @@ if uploaded_file is not None:
                     except Exception as e: st.error(e)
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # === PAGE 3: EXCEL EDITOR ===
     elif menu == "✏️ Excel-Style Data Editor":
         st.markdown('<div class="content-box"><h3>✏️ Excel-Style Data Editor</h3><p style="color:#94a3b8;">Double-click to edit, add rows, or sort.</p>', unsafe_allow_html=True)
         edited_df = st.data_editor(df, num_rows="dynamic", use_container_width=True, height=400)
@@ -182,7 +176,6 @@ if uploaded_file is not None:
         col3.download_button("📥 Download Edited CSV", data=edited_df.to_csv(index=False).encode('utf-8'), file_name="Salar_Edited_Data.csv", mime="text/csv")
         st.markdown('</div>', unsafe_allow_html=True)
 
-    # === PAGE 4: AUTO-PILOT DASHBOARD (PDF EXPORT) ===
     elif menu == "🤖 Auto-Pilot Dashboard":
         col1, col2 = st.columns([4, 1])
         with col1:
@@ -200,17 +193,18 @@ if uploaded_file is not None:
                     cat_cols, num_cols = df.select_dtypes(include=['object']).columns, df.select_dtypes(include=['float64', 'int64']).columns
                     if len(cat_cols) > 0 and len(num_cols) > 0:
                         c1, c2 = st.columns(2)
+                        
                         fig1 = px.bar(df.groupby(cat_cols[0])[num_cols[0]].sum().reset_index().sort_values(by=num_cols[0], ascending=False).head(10), x=cat_cols[0], y=num_cols[0], title=f"AI Pick: Top 10 {cat_cols[0]}", template="plotly_dark", color=cat_cols[0])
-                        fig1.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                        fig1 = apply_chart_styling(fig1)
                         c1.plotly_chart(fig1, use_container_width=True)
                         
                         fig2 = px.pie(df, names=cat_cols[0], values=num_cols[0], title=f"AI Pick: Distribution of {num_cols[0]}", template="plotly_dark") if len(df[cat_cols[0]].unique()) <= 15 else px.line(df.head(100), y=num_cols[0], title=f"AI Pick: Trend of {num_cols[0]}", template="plotly_dark")
-                        fig2.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                        fig2 = apply_chart_styling(fig2)
                         c2.plotly_chart(fig2, use_container_width=True)
 
                         if len(num_cols) > 1:
                             fig3 = px.scatter(df.head(200), x=num_cols[0], y=num_cols[1], color=cat_cols[0], title=f"AI Insight: Correlation between {num_cols[0]} & {num_cols[1]}", template="plotly_dark")
-                            fig3.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)")
+                            fig3 = apply_chart_styling(fig3)
                             st.plotly_chart(fig3, use_container_width=True)
                         st.balloons()
                     else: st.error("Data needs both text and numbers for charts.")
