@@ -4,3 +4,4 @@ langchain-groq
 langchain-experimental
 plotly
 tabulate
+openpyxl
